@@ -1,1 +1,459 @@
+<html>
+    <head>
+        <title>Hacking Team, Chile y Ecuador</title>
+    </head>
+    <body style="font-family: Arial; text-align: justify;"><!-- BEGIN WAYBACK TOOLBAR INSERT -->
 
+<style type="text/css">
+body {
+  margin-top:0 !important;
+  padding-top:0 !important;
+  /*min-width:800px !important;*/
+}
+</style>
+        <h1>Hacking Team, Chile y Ecuador.</h1>
+        <p>
+            Hace pocos d&iacute;as la red fue testigo de un nuevo caso de 
+            filtraciones. Esta vez fue el turno de la 
+            <a href="https://surveillance.rsf.org/en/hacking-team/">
+            mal afamada</a> empresa italiana Hacking Team (HT), cuyos cerca 
+            de <a href="http://www.theguardian.com/technology/2015/jul/06/hacking-team-hacked-firm-sold-spying-tools-to-repressive-regimes-documents-claim">
+            400 Gb de informaci&oacute;n interna</a> han dejado al descubierto 
+            el millonario y poco &eacute;tico negocio que posee con una 
+            multitud de gobiernos alrededor del mundo, entre los que se 
+            encuentran varios de Latinoam&eacute;rica. El prop&oacute;sito 
+            de este documento es presentar una breve explicaci&oacute;n sobre 
+            el funcionamiento del software Remote Control System "Galileo", 
+            principal producto de HT, adem&aacute;s de un peque&ntilde;o
+            an&aacute;lisis sobre los correos filtrados que relacionan a 
+            HT con los gobiernos de Chile y Ecuador.
+        </p>
+        <p style="text-align: center">
+            <br/>
+            <img src="https://web.archive.org/web/20170301090323im_/https://people.torproject.org/~ilv/rcs_target_profile.png">
+            <img src="https://web.archive.org/web/20170301090323im_/https://people.torproject.org/~ilv/rcs_network.png">
+            <br/><br/>
+            <i>M&oacute;dulo de Inteligencia Remote Control System (fuentes: 
+            <a href="https://firstlook.org/theintercept/2014/10/30/hacking-team/">First Look</a>,
+            <a href="https://citizenlab.org/2014/06/backdoor-hacking-teams-tradecraft-android-implant/">Citizen Lab</a>)
+            </i>
+        </p>
+        <p>
+            <h2>&Iacute;ndice</h2>
+            <ul>
+                <li><a href="#rcs">Remote Control System</a></li>
+                <li><a href="#phantom">Caso Chile - PHANTOM</a></li>
+                <li><a href="#senain">Caso Ecuador - SENAIN</a></li>
+            </ul>
+        </p>
+        <br/>
+        <h2><a name="rcs">Remote Control System</a></h2>
+        <p>
+            &iquest;Qu&eacute; es Remote Control System "Galileo" y qu&eacute; 
+            es lo que hace? Gracias a la informaci&oacute;n filtrada se ha 
+            podido acceder no s&oacute;lo a gran parte de la comunicaci&oacute;n
+            que HT manten&iacute;a con sus clientes, sino tambi&eacute;n a 
+            un sinf&iacute;n de material t&eacute;cnico sobre el funcionamiento 
+            y capacidades del Remote Control System. Del manual de
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/1062729">
+            SysAdmin</a> se obtiene la siguiente definici&oacute;n:
+        </p>
+        <p>
+            <i>
+            "RCS (Remote Control System) es una soluci&oacute;n que soporta 
+            investigaciones por medio de la intercepci&oacute;n activa y 
+            pasiva de los datos y la informaci&oacute;n de los dispositivos 
+            bajo investigaci&oacute;n. De hecho, RCS crea, configura e instala 
+            agentes de software de forma an&oacute;nima que recopilan datos 
+            e informaci&oacute;n y env&iacute;an los resultados a la base 
+            de datos central para decodificarlos y guardarlos."
+            </i>
+        </p>
+        <p>
+            Es decir, RCS presenta una soluci&oacute;n de software 
+            dise&ntilde;ada para realizar espionaje inform&aacute;tico. 
+            Ni m&aacute;s, ni menos.
+        </p>
+        <p>
+            Para entender c&oacute;mo funciona RCS es necesario tener en 
+            cuenta los siguientes conceptos:
+            <ul>
+                <li><b>Organismo</b>: Entidad gubernamental que utiliza
+                RCS en sus labores de espionaje.</li><br/>
+                
+                <li><b>Operador</b>: Funcionario de Organismo que hace uso
+                de RCS, previa capacitaci&oacute;n por parte de HT.</li><br/>
+                
+                <li><b>V&iacute;ctima</b>: Sujeto bajo espionaje
+                por parte de Organismo. T&eacute;cnicamente referido como
+                <i>target</i>.</li><br/>
+                
+                <li><b>Dispositivo</b>: Equipo computacional perteneciente
+                a la v&iacute;ctima. Puede ser un computador de escritorio,
+                laptop, tel&eacute;fono m&oacute;vil, tablet, etc. Una 
+                v&iacute;ctima puede tener uno o m&aacute;s dispositivos 
+                en su poder.</li><br/>
+                
+                <li><b>Software esp&iacute;a</b>: Software que permite 
+                tener control sobre un dispositivo, ya sea de manera parcial 
+                o total. T&eacute;cnicamente referido como <i>agent</i>.
+                </li>
+            </ul>
+        </p>
+        <p>
+            Con esto se puede tener una visi&oacute;n general de la 
+            arquitectura de RCS (notar que se han omitido varios detalles 
+            internos del funciomiento de RCS, como el nodo maestro, shards, 
+            etc.):
+        
+            <p style="text-align: center;">
+                <br/><img src="https://web.archive.org/web/20170301090323im_/https://people.torproject.org/~ilv/rcs-dia.png"><br/>
+            </p>
+        </p>
+        <p>
+            Se pueden apreciar tres partes fundamentales:
+            <ol>
+                <li>
+                    <b>Red interna de RCS</b>: Manejada por el Organismo.
+                    Posee un &uacute;nico punto de acceso p&uacute;blico 
+                    (i.e. alcanzable desde Internet) llamado <i>Collector</i>.
+                    Este &uacute;ltimo se encarga de enviar toda
+                    la informaci&oacute;n recolectada al resto de la red
+                    interna de RCS para ser procesada y almacenada. Una 
+                    vez dentro, esta informaci&oacute;n es accesada 
+                    y analizada por los operadores del Organismo.
+                </li><br/>
+            
+                <li><b><i>Anonymizers</i></b>: Servidores distribuidos 
+                    geogr&aacute;ficamente alrededor del globo (en este 
+                    caso, A, B y C). Su principal funci&oacute;n es mantener 
+                    la comunicaci&oacute;n entre los softwares esp&iacute;a 
+                    y la red interna de RCS de manera an&oacute;nima, 
+                    creando una cadena de servidores que transportan la 
+                    informaci&oacute;n recolectada desde las v&iacute;ctimas 
+                    hasta el <i>Collector</i> secuencialmente.
+                </li><br/>
+
+                <li>
+                    <b>Softwares esp&iacute;a</b>: Distribuidos a trav&eacute;s 
+                    de la red (en este caso, V1, V2, V3, V4). Recopilan y 
+                    env&iacute;an la informaci&oacute;n de cada dispositivo 
+                    a la cadena de <i>Anonymizers</i>.
+                </li>
+            </ol>
+            
+            As&iacute;, por ejemplo, si el software esp&iacute;a instalado en el dispositivo
+            <b>V4</b> quisiera enviar informaci&oacute;n de su v&iacute;ctima
+            al organismo de inteligencia, el flujo de comunicaci&oacute;n
+            ser&iacute;a el siguiente: <b>V4</b> -&gt; <b>A</b> -&gt; 
+            <b>B</b> -&gt; <b>A</b> -&gt; <b><i>Collector</i></b> -&gt;
+            <b>Red interna RCS</b>. Una vez all&iacute;, la informaci&oacute;n
+            puede ser consultada por los operadores. Para mayor informaci&oacute;n 
+            sobre la arquitectura de RCS se recomienda leer el manual 
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/1062729">
+            RCS SysAdmin</a>.
+        </p>
+        <p>
+            Hasta ahora todo bien. &iquest;Pero qu&eacute; informaci&oacute;n 
+            es recolectada? Una vez que un software esp&iacute;a ha sido 
+            instalado en el dispositivo de una v&iacute;ctima es posible 
+            recolectar la siguiente informaci&oacute;n: llamadas, mensajes, 
+            ficheros y fotos, capturas de pantalla, posici&oacute;n, contactos 
+            y calendario, sitios web visitados, teclas presionadas, clicks 
+            de mouse y contrase&ntilde;as de sistema, c&aacute;mara, etc. Los 
+            software esp&iacute;a que realizan esta tarea son generados 
+            internamente a trav&eacute;s de RCS, dependiendo del dispositivo, 
+            sistema operativo y m&eacute;todo de instalaci&oacute;n que 
+            se desee utilizar. 
+        </p>
+        <p>
+            Uno de los servicios m&aacute;s controversiales que HT ofrece 
+            a sus clientes es la disponibilidad de diversos m&eacute;todos para 
+            lograr instalar el software esp&iacute;a en los dispositivos 
+            de cada v&iacute;ctima, incluyendo c&oacute;digos maliciosos 
+            secretos (<i>zero-day</i>) que permiten vulnerar una gran cantidad
+            de dispositivos y/o sistemas operativos. Los m&eacute;todos 
+            ofrecidos por HT son varios: exploits, paquete de instalaci&oacute;n, 
+            instalaci&oacute;n local, aplicaci&oacute;n mezclada, inyecci&oacute;n 
+            por red, instalaci&oacute;n offline, instalaci&oacute;n persistente, 
+            c&oacute;digo QR/enlace web, instalador silencioso, instalaci&oacute;n 
+            U3, Wap Push Message. Cada uno de estos m&eacute;todos es efectivo contra ciertos 
+            dispositivos y sistemas operativos, dependiendo del contexto
+            y las caracter&iacute;sticas de los mismos. Por ejemplo, una 
+            vez que un operador tiene certeza del dispositivo que desea 
+            atacar, una de las tantas opciones que tiene es crear un <i>ticket</i> 
+            en el sistema de soporte de HT, especificando el tipo de software 
+            esp&iacute;a que quiere instalar y de qu&eacute; manera (m&eacute;todo). 
+            Un ingenierio de HT se encargar&aacute; de vincular el software 
+            esp&iacute;a a dicho m&eacute;todo y le entregar&aacute; los 
+            archivos/enlace al operador (organismo), quien deber&aacute; 
+            enga&ntilde;ar a su v&iacute;ctima para que abra dicho archivo/enlace 
+            (o si tiene acceso f&iacute;sico, hacerlo &eacute;l mismo) y 
+            concretar as&iacute; la instalaci&oacute;n del software  esp&iacute;a 
+            en el dispositivo. Generalmente, el archivo/enlace provisto 
+            por HT es de ejecuci&oacute;n &uacute;nica, es decir, una vez 
+            utilizado no volver&aacute; a funcionar otra vez. A continuaci&oacute;n 
+            se describen algunos casos de ejemplo que involucran distintos 
+            dispositivos y m&eacute;todos:
+        </p>
+        <p>
+            <b>Caso 1</b>: El operador genera a trav&eacute;s de RCS un 
+            software esp&iacute;a, y en el sistema de soporte 
+            solicita la generaci&oacute;n de una URL maliciosa que instale 
+            dicho software sin que la v&iacute;ctima se de cuenta, y que 
+            luego la redireccione a una URL v&aacute;lida. Un ingeniero 
+            de HT se encarga de generar lo solicitado y responde al operador 
+            con la URL maliciosa, la cual debe ser enviada por el operador 
+            a la v&iacute;ctima (v&iacute;a email, SMS, etc.). Como se 
+            mencion&oacute; anteriormente, esta URL funciona una sola vez, as&iacute; 
+            que no debe ser abierta ni por el operador ni por nadie m&aacute;s. 
+            Una vez que la v&iacute;citma abre dicha URL en su explorador, 
+            se procede autom&aacute;ticamente a instalar el software esp&iacute;a en el dispositivo 
+            y se redirecciona a la URL v&aacute;lida especificada por el 
+            operador. Si todo resulta con &eacute;xito, el operador ver&aacute; 
+            la informaci&oacute;n de la v&iacute;ctima a trav&eacute;s de 
+            RCS, pudiendo realizar diversas operaciones, como captura de 
+            pantalla, transferencia de archivos, ejecuci&oacute;n de 
+            comandos, activaci&oacute;n de c&aacute;mara, etc. Este m&eacute;todo
+            funciona tanto en equipos de escritorio como tel&eacute;fonos 
+            m&oacute;viles.
+        </p>
+        <p>
+            <b>Caso 2</b>: El operador genera a trav&eacute;s de RCS un 
+            software esp&iacute;a, y en el sistema de soporta solicita 
+            que &eacute;ste sea escondido dentro de un archivo .docx/.pptx. 
+            Un ingeniero de HT se encarga de llevar a cabo lo solicitado y 
+            responde al operador con el archivo .docx/.pptx infectado. 
+            Dicho archivo debe ser enviado por el operador a la v&iacute;ctima, 
+            y una vez que lo abra el software esp&iacute;a ser&aacute; instalado 
+            de manera autom&aacute;tica en su dispostivo. Al igual que en 
+            el caso anterior, el operador podr&aacute; visualizar la 
+            informaci&oacute;n de la v&iacute;citma a trav&eacute;s de RCS 
+            en caso de &eacute;xito.
+        </p>
+        <p>
+            <b>Caso 3</b>: El operador hace uso de un TNI (Tactical Network 
+            Injector), un laptop con un sistema operativo y software "propios" 
+            provisto por HT, cuya principal funci&oacute;n es interceptar 
+            tr&aacute;fico de red (cableado o inal&aacute;mbrico). 
+            En el  caso de una red Wifi, el operador debe estar dentro del 
+            rango de la red inal&aacute;mbrica, romper la clave con las 
+            herramientas instaladas en el TNI, interceptar el tr&aacute;fico
+            y modificar ciertos patrones seg&uacute;n sea conveniente (un 
+            par de clicks por parte del operador). Por ejemplo, puede capturar 
+            todo el tr&aacute;fico que se diriga a YouTube y solicitar 
+            (autom&aacute;ticamente) a la v&iacute;ctima que actualice su 
+            versi&oacute;n de Flash. Una vez que haga esto, el software 
+            esp&iacute;a es instalado en dicho dispositivo y la v&iacute;ictima
+            queda infectada.
+        </p>
+        <p>
+            Existen muchos otros m&eacute;todos para forzar la instalaci&oacute;n 
+            de software esp&iacute;a en el  dispositivo de una v&iacute;citma 
+            (v&iacute;a USB, por ejemplo). Para mayor informaci&oacute;n 
+            se recomienda leer el manual <a href="https://wikileaks.org/hackingteam/emails/emailid/1062721 ">
+            RCS Technician</a>.
+        </p>
+        <h2><a name="phantom">Caso Chile - PHANTOM</a></h2>
+        <p>    
+            PHANTOM hace referencia al RCS adquirido por el Departamento 
+            de Investigaci&oacute;n Electr&oacute;nica de la Polic&iacute;a 
+            de Investigaciones de Chile (DIE-PDI). Hasta el momento, DIE-PDI
+            pareciera ser el &uacute;nico cliente chileno de HT, aunque 
+            de acuerdo a las filtraciones existir&iacute;an m&aacute;s
+            organismos interesados, incluyendo al Ej&eacute;rcito y otros 
+            departamentos de la misma PDI. Mas informaci&oacute;n 
+            <a href="http://ciperchile.cl/2015/07/10/los-correos-que-alertaron-sobre-la-compra-del-poderoso-programa-espia-de-la-pdi/">
+            aqu&iacute;</a>.
+        </p>
+        <p>
+            Al momento de adquirir PHANTOM, HT entreg&oacute; a DIE-PDI 
+            varias licencias, entre las que se destacan:
+            <ul>
+                <li>
+                    <b>3 Licencias de <i>Anonymizers</i></b>: Con esto se 
+                    sabe que pueden utilizar hasta tres servidores en el 
+                    extranjero para anonimizar la comunicaci&oacute;n 
+                    entre sus v&iacute;ctimas y PHANTOM. Seg&uacute;n la 
+                    <a href="http://htwiki.transparencytoolkit.org/index.php/PHANTOM">
+                    Wiki de HT</a>, dichos servidores ser&iacute;an rentados
+                    a las empresas extranjeras Digital Ocean y Linode.
+                </li><br/>
+                
+                <li>
+                    <b>100 Licencias de <i>Agents</i></b>: Es decir, 
+                    pueden generar a trav&eacute;s de RCS hasta 100 softwares 
+                    esp&iacute;as.
+                </li><br/>
+                
+                <li>
+                    <b>Plataformas soportadas Windows (XP, Vista, 7, 8), 
+                    OS X, Linux, BlackBerry, Android, iOS, Windows Phone
+                    </b>: En otras palabras, pueden infectar casi cualquier 
+                    cosa. Sin embargo, uno de los 
+                    <a href="https://wikileaks.org/hackingteam/emails/emailid/255481">
+                    correos filtrados</a> se&ntilde;ala que no ser&iacute;a 
+                    tan as&iacute;.
+                </li><br/>
+                
+                <li>
+                    <b>1 Inyector T&aacute;ctico de Redes, 1 Sistema de 
+                    Inyecci&oacute;n Remota</b>: Con esto pueden interceptar 
+                    tr&aacute;fico de red y modificarlo para inyectar software 
+                    esp&iacute;a (TNI).
+                </li>
+            </ul>
+        </p>
+        <p>
+            Con esto sabemos qu&eacute; cosas pueden hacen en la teor&iacute;a. 
+            &iquest;Qu&eacute; habr&aacute;n hecho en la pr&aacute;ctica? 
+            Seg&uacute;n los correos filtrados, existe registro de solicitudes 
+            en el sistema de soporte para realizar ataques similares a los 
+            casos 1 y 3. Veamos:
+            <p style="background: #ccc; padding 20px; margin: 50px;">
+                <b>RESUMEN</b>: Operadores de PHANTOM solicitan mayoritariamente
+                software esp&iacute;a para sistemas Android, utilizando URL
+                maliciosas que redirigen a portales de Dafiti, Groupon, 
+                Falabella, Ripley, Fevochi, M&aacute;s mascotas, Todo telas.
+                Adem&aacute;s, todo parece indicar que ya han hecho uso del TNI.
+            </p>
+        </p>
+        <p>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/636090">Aqu&iacute; parece ser</a> que realizaron pruebas sobre dispositivos con sistema Android, con redirecci&oacute;n al portal de Dafiti. Tambi&eacute;n se se&ntilde;ala que se habr&iacute;a enviado el link v&iacute;a SMS. Al parecer esto es meramente con fines de prueba. <a href="https://wikileaks.org/hackingteam/emails/emailid/632075 ">Aqu&iacute; la respuesta</a> de HT.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/640759">Se solicita </a>generar URLs maliciosas para Android y PC, con redirecci&oacute;n a Falabella, Dafiti y Ripley. Esto ya no parece una prueba. <a href="https://wikileaks.org/hackingteam/emails/emailid/636322">Aqu&iacute; la respuesta</a> por parte de HT. 
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/23976">Se solicita</a> generar URL maliciosa para Android, con redirecci&oacute;n a Fevochi. <a href="https://wikileaks.org/hackingteam/emails/emailid/36291">Aqu&iacute; la respuesta</a> de HT. 
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/37149">Se solicita</a> generar URL maliciosa para Android, con redirecci&oacute;n a Falabella. <a href="https://wikileaks.org/hackingteam/emails/emailid/949879">Aqu&iacute; la respuesta</a> de HT.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/42535">Se solicita</a> generar URL maliciosa para Android, con redirecci&oacute;n a Ripley. <a href="https://wikileaks.org/hackingteam/emails/emailid/950619">Aqu&iacute; la respuesta</a> de HT.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/1078737">Se solicita</a> generar archivo HTML malicioso para Windows, con redirecci&oacute;n a Groupon. <a href="https://wikileaks.org/hackingteam/emails/emailid/1079416">Aqu&iacute; la respuesta</a> de HT.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/39720">Se solicita</a> generar URL maliciosa para Android, con redirecci&oacute;n a M&aacute;s Mascotas. <a href="https://wikileaks.org/hackingteam/emails/emailid/931778">Aqu&iacute; la respuesta</a> de HT.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/65660">Se solicita</a> generar URL maliciosa para Android, con redirecci&oacute;n a Dafiti. <a href="https://wikileaks.org/hackingteam/emails/emailid/629546 ">Aqu&iacute; la respuesta</a> de HT.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/34146">Se solicita</a> generar URL maliciosa para Android, con redirecci&oacute;n a Todo telas. <a href="https://wikileaks.org/hackingteam/emails/emailid/32357 ">Aqu&iacute; la respuesta</a> de HT.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/639224">Se realizan</a> preguntas sobre una supuesta infecci&oacute;n exitosa, que habr&iacute;a sido realizada en una m&aacute;quina con Windows 7 Professional, en una red de alta seguridad. <a href="https://wikileaks.org/hackingteam/emails/emailid/925980">Aqu&iacute; una captura de pantalla</a> de la v&iacute;ctima en cuesti&oacute;n (a trav&eacute;s de RCS). 
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/760031">En este correo</a> un par de ingenierios de HT discuten sobre dos de sus clientes: SENAIN y PHANTOM. Con respecto a este &uacute;ltimo, se comenta el uso del TNI en un escenario operacional, que al parecer se realiz&oacute; sin problemas. No queda claro si es una prueba o no.
+        </p>
+        <p>
+            Con esta informaci&oacute;n queda de manifiesto el uso activo 
+            que DIE-PDI est&aacute; haciendo de PHANTOM, m&aacute;s all&aacute;
+            del posible &eacute;xito que se haya logrado con los ataques. 
+            Adem&aacute;s, se puede apreciar que la mayor&iacute;a de las 
+            supuestas  v&iacute;ctimas hace uso de dispositivos m&oacute;viles 
+            con  sistema Android, con redirecciones principalmente a 
+            entidades comerciales (luego de ser infectadas con el software 
+            esp&iacute;a, claro est&aacute;). No es dif&iacute;cil imaginar 
+            que se hayan enviado correos/SMS con referencias a promociones 
+            o descuentos para que la v&iacute;ctima fuera inducida a visitar 
+            los enlaces maliciosos. 
+        </p>
+        <h2><a name="senain">Caso Ecuador - SENAIN</a></h2>
+        <p>
+            <a href="http://htwiki.transparencytoolkit.org/index.php/SENAIN">
+            SENAIN</a> hace referencia al RCS adquirido por la Secretar&iacute;a 
+            Nacional de Inteligencia del Gobierno de Ecuador. Hasta el 
+            momento, SENAIN ser&iacute;a el &uacute;nico cliente ecuatoriano 
+            de HT. Actualmente el autor de este documento ignora las
+            licencias adquiridas por SENAIN, pero se puede suponer que el 
+            RCS en su poder corresponder&iacute;a una instalaci&oacute;n 
+            est&aacute;ndar. Seg&uacute;n los correos filtrados, existe 
+            registro de solicitudes en el sistema de soporte para realizar 
+            ataques similares a los casos 1 y 2. Adem&aacute;s, se deja 
+            entrever bastante informaci&oacute;n sobre la efectividad de 
+            la SENAIN para instalar software esp&iacute;a en sus supuestas
+            v&iacute;ctimas. Veamos:
+            <p style="background: #ccc; padding 20px; margin: 50px;">
+                <b>RESUMEN</b>: Operador de SENAIN solicita mayoritariamente
+                software esp&iacute;a para Windows, a trav&eacute;s de archivos
+                .docx/.pptx infectados, o con URL maliciosas que redirigen
+                a portales de El Universo, El Comercio, Hoy, Instagram, Anonynews.
+                Al parecer habr&iacute;a infectado a entidades como CNE y
+                Pachakutks.
+            </p>
+        </p>
+        <p>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/636994">Se discute</a> sobre problemas de sincronizaci&oacute;n con un software esp&iacute;a ya instalado.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/637310">Se discute</a> sobre una v&iacute;ctima infectada, y se desea saber como transferir ficheros.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/638843">Nuevamente se discute</a> sobre v&iacute;ctima infectada y como transferir ficheros.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/531391">Se discute</a> sobre una v&iacute;ctima previamente infectada pero que no sincroniza, por lo que se solicita un c&oacute;digo malicioso para volver a infectar. En la captura de pantalla adjunta se puede apreciar al menos trece dispositivos infectados (escritorio y m&oacute;vil).
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/532299">Se solicita</a> generar URLs maliciosas para Windows, y con redirecci&oacute;n a anonynews.info
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/532778">Se solicita</a> generar URL maliciosa para Windows, con redirecci&oacute;n a Instagram. 
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/532912">Se solicita </a>generar URL maliciosa para Windows, con redirecci&oacute;n a noticia de El Comercio.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/533369">Se solicita</a> generar URL maliciosa para Windows, con redirecci&oacute;n a noticia de El Universo.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/943226">Se solicita</a> generar URLs maliciosas para Windows, con redirecci&oacute;n a anonynews, El Universo, Hoy Ecuador.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/529235">Se solicita</a> generar archivos .docx/.pptx maliciosos para Windows.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/529018">Se explica</a> al operador algunas t&aacute;cticas para infectar v&iacute;ctimas. Se recalca que no es recomendable enviar muchos enlaces/archivos maliciosos a la v&iacute;ctima ya que puede sospechar.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/531016">Se solicita </a>generar archivo .docx malicioso para Windows.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/532756">Se solicita</a> generar archivo .docx malicioso para Windows.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/630475">Se env&iacute;a</a> un conjunto de capturas de pantallas sobre v&iacute;ctimas infectadas. En ellas se puede distinguir que cada una esta bajo una organizaci&oacute;n, entre las que se distingue: Jueces, CNE, CONAIE - Pachakutks, El Creador, CJY Cia.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/633228">Nuevamente se discute</a> sobre v&iacute;ctimas infectadas. Nota: en t&eacute;rminos de software esp&iacute;a, <i>soldier</i> se refiere a dispositivos en donde existe acceso parcial a la informaci&oacute;n, mientras que <i>elite</i> se refiere al caso en donde existe acceso total.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/501542">Se discute</a> sobre v&iacute;ctima infectada de "nivel soldier" en Windows 8. Adjunto se puede ver informaci&oacute;n del dispositivo infectado.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/527119">Ingeniero de HT describe</a> los requisitos para instalar software esp&iacute;a en dispositivo de v&iacute;citima mediante uso de archivos HTML.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/945077">Se hace referencia</a> al Mayor Pa&uacute;l L&oacute;pez como responsable del proyecto.
+            <br/><br/>
+            <a href="https://wikileaks.org/hackingteam/emails/emailid/637699">Se discute</a> sobre los servidores Anonymizers, ubicados en Londres, Tokyo y Atlanta.
+        </p>
+        <p>
+            La lista podr&iacute;a seguir, pero con los correos ya mencionados
+            queda en evidencia la efectividad de los funcionarios de la 
+            Secretar&iacute;a Nacional de Inteligencia para instalar software 
+            esp&iacute;a en varias v&iacute;ctimas. A diferencia del caso 
+            de Chile, la mayor&iacute;a de los dispositivos infectados 
+            utiliza Windows, y los m&eacute;todos m&aacute;s
+            populares ser&iacute;an el env&iacute;o de archivos .docx/.pptx 
+            y redirecciones a portales informativos. Adem&aacute;s, se puede 
+            apreciar que la persona encargada de operar RCS env&iacute;a 
+            sin ciudado informaci&oacute;n sobre las v&iacute;ctimas 
+            infectadas al soporte de HT, e incluso hace uso de nombres 
+            sugerentes a cada v&iacute;ctima, tanto en los softwares 
+            esp&iacute;a como en el uso interno de RCS.
+        </p>
+        <h2>Conclusi&oacute;n</h2>
+        <p>
+            La informaci&oacute;n analizada no hace m&aacute;s que confirmar 
+            el poder del sistema RCS y c&oacute;mo hoy en d&iacute;a es 
+            activamente utilizado por agencias gubernamentales a lo largo 
+            del mundo. Las t&eacute;cnicas utilizadas son una muestra de 
+            que, en este caso, el margen entre lo legal y lo ilegal es 
+            bastante difuso. Desde una perspectiva t&eacute;cnica, la 
+            labor realizada por DIE-PDI y SENAIN no es muy distinto de lo
+            que com&uacute;nmente se conoce como <i>phishing</i>, pr&aacute;ctica 
+            que es considerada ilegal y penalizada por la ley. Si acaso 
+            cada una de estas acciones estuvo justificada por una orden 
+            judicial, es algo que por ahora s&oacute;lo podemos especular. 
+        </p>
+        <h3>Contacto</h3>
+        <p>
+            Si encuentras un error o tienes algo que aportar a este documento,
+            cont&aacute;ctame a ilv <i>arroba</i> riseup.net. Mi fingerprint PGP es
+            <a href="https://pgp.mit.edu/pks/lookup?op=vindex&amp;search=0xA456E2CE540BFC0E">
+            5392 7C25 AAF1 4FBB CAFA BDA3 A456 E2CE 540B FC0E</a>
+        </p>
+        <br/>
+
+    </body>
+</html>
